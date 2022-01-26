@@ -1,4 +1,5 @@
 from datetime import date
+# Saving these function for general use as needed.
 
 
 def current_age_calculator(dob):  # uses datetime for real time age calculation
@@ -39,23 +40,7 @@ def metric_uscs_height(height):  # Converts Metric cm to USCS ft/in
 
 def metric_uscs_weight(weight):  # Converts Metric KG to USCS lbs
     uscs_weight = round(int(weight) * 2.2)  # round the decimal off
-    str_uscs_weight = f"{uscs_weight}lbs"  # makes it pretty
+    str_uscs_weight = f"{uscs_weight}lbs"  # makes it pretty but probably overkill for general use
     return str_uscs_weight
 
 
-def valid_answer():  # checking to see if answer to question was y or n - otherwise throw error
-    while True:  # loop until satisfied
-        answer = input(">").lower()  # not case-sensitive
-        if answer == "y" or answer == "n":  # asking for y or n
-            break  # satisfied
-        else:
-            print("Invalid entry. Please enter 'y' or 'n'.")  # if any other input happens they get this error
-    return answer
-
-# Don't want to combine valid_answer and check_card because it could force useless input on patient :(
-
-
-def check_card():  # if the patient has an implant card they can input the info here
-    print("Please enter card information if available. If you do not have a card describe the implant: ")
-    card_info = input(">")  # this input will be sent to technologist for further research
-    return card_info
