@@ -12,8 +12,8 @@ import MRIScreening
 
 appt = "07/20/2022"  # going to pull from file
 name = MRIScreening.input_name()
-dob = MRIScreening.input_dob()
 sex = MRIScreening.input_sex()
+dob = MRIScreening.input_dob()
 metric = MRIScreening.metric_system()
 height = MRIScreening.input_height(metric)
 weight = MRIScreening.input_weight(metric)
@@ -27,16 +27,19 @@ current_age = MyTools.current_age_calculator(dob)
 # APPT AGE
 appt_age = MyTools.appt_age_calculator(appt, dob)
 
-# DEMOGRAPHICS COMPILER - will need to convert to fx
-MRIScreening.compile_demographics(name, dob, metric, height, weight)
+# DEMOGRAPHICS INPUT CHECKER
+MRIScreening.check_demographics(name, sex, dob, metric, height, weight)  #!! didn't include sex.. ugh
+
+# DEMOGRAPHICS COMPILER - can use for file input later
+demographics = MRIScreening.compile_demographics(name, sex, dob, metric, height, weight)
 
 
 # METRIC HEIGHT AND WEIGHT CONVERTER CHECK - for now
 if metric == "y":  # metric units to USCS units
     height = MyTools.metric_uscs_height(height)
     weight = MyTools.metric_uscs_weight(weight)
-    demographics = f"Name: {name}\nAge: {current_age}  DOB: {dob}\nHeight: {height}  Weight: {weight}"
-print(f"DEBUG:\n{demographics}")
+    demographics = f"Name: {name}\nDOB: {dob}  Age: {current_age}\nHeight: {height}  Weight: {weight}lbs"
+print(f"DEBUG: METRIC CONVERTER\n{demographics}")
 
 # SETTINGS - need a hub to customize settings such as this
 scan_pacemakers = True

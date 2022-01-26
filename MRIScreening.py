@@ -21,13 +21,31 @@ def check_card():  # if the patient has an implant card they can input the info 
 
 
 def input_name():
-    name = input("Enter your first and last name: ")
+    while True:
+        name = input("Enter your first and last name: ")
+        if " " not in name:
+            print("ERROR. Did not detect last name.")
+        else:
+            break
     name = name.title()  # format name correctly
     return name
 
 
 def input_dob():
-    dob = input("Enter your date of birth (MM/DD/YYYY): ")  # need to catch incorrect format
+    while True:
+        dob = input("Enter your date of birth (MM/DD/YYYY): ")
+        try:
+            dob_month = dob.split("/")[0]  # splitting and defining each element for format check
+            dob_day = dob.split("/")[1]
+            dob_year = dob.split("/")[2]
+            if any([int(dob_month) > 12, len(dob_month) != 2,  # date format check
+                    int(dob_day) > 31, len(dob_day) != 2,
+                    int(dob_year) < 1900, len(dob_year) != 4]):
+                print("ERROR. Incorrect format. Try again.")
+            else:
+                break
+        except ValueError:  # practice not using bare except
+            print("ERROR. Incorrect format.")
     return dob
 
 
@@ -37,8 +55,8 @@ def input_sex():
         if sex == "male" or sex == "female":
             break
         else:
-            print("Invalid answer. Please enter male or female.")
-        return sex
+            print("INVALID ANSWER. Please enter male or female.")
+    return sex.title()
 
 
 def metric_system():
@@ -91,34 +109,51 @@ def input_weight(metric):
         return weight
 
 
-def compile_demographics(name, dob, metric, height, weight):  # could put args in list for brevity
+def compile_demographics(name, sex, dob, metric, height, weight):  # could put args in list for brevity
     current_age = MyTools.current_age_calculator(dob)
     while True:
         if metric == "y":  # metric units to USCS units
             # Might be nice to return DOB as Month Day, Year (July 19, 1990) for CLARITY!
-            demographics = f"Name: {name}\nAge: {current_age}  DOB: {dob}\nHeight: {height}cm  Weight: {weight}kg"
+            demographics = f"Name: {name}\n" \
+                           f"Sex: {sex}\n" \
+                           f"DOB: {dob}  Age: {current_age}\n" \
+                           f"Height: {height}cm  Weight: {weight}kg"
+            return demographics
         else:
-            demographics = f"Name: {name}\nAge: {current_age}  DOB: {dob}\nHeight: {height}  Weight: {weight}"
+            demographics = f"Name: {name}\n" \
+                           f"Sex: {sex}\n" \
+                           f"DOB: {dob}  Age: {current_age}\n" \
+                           f"Height: {height}  Weight: {weight}lbs"
+            return demographics
+
+
+def check_demographics(name, sex, dob, metric, height, weight):  # getting the demographics right is very important
+    while True:
+        demographics = compile_demographics(name, sex, dob, metric, height, weight)
         print(f"{demographics}\nPlease verify that the information above is correct. [y/n] ")
-        correct = MRIScreening.valid_answer()
+        correct = valid_answer()
         if correct == "y":
-            break
-        if correct == "n":
-            print("Input the number of the field that is incorrect.\n1. Name\n2. DOB\n3. Height\n4. Weight")
+            return demographics
+        if correct == "n":  # May separate into another fx? edit_demographics
+            print("Input the number of the field that is incorrect.\n1. Name\n2. Sex\n3. DOB\n4. Height\n5. Weight")
             while True:
                 edit_field = input()
-                if edit_field.isdigit() and int(edit_field) <= 4:
+                if edit_field.isdigit() and int(edit_field) <= 5:
                     break
                 else:
-                    print("Error. Please input one number between 1 and 4 corresponding to the field that needs to be "
+                    print("Error. Please input one number between 1 and 5 corresponding to the field that needs to be "
                           "corrected.")
             if edit_field == "1":
-                name = MRIScreening.input_name()
+                name = input_name()
             elif edit_field == "2":
-                dob = MRIScreening.input_dob()
+                sex = input_sex()
             elif edit_field == "3":
-                metric = MRIScreening.metric_system()
-                height = MRIScreening.input_height(metric)
+                dob = input_dob()
+            elif edit_field == "4":
+                metric = metric_system()
+                height = input_height(metric)
             else:
-                metric = MRIScreening.metric_system()
-                weight = MRIScreening.input_height(metric)
+                metric = metric_system()
+                weight = input_weight(metric)
+
+

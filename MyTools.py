@@ -40,7 +40,7 @@ def metric_uscs_height(height):  # Converts Metric cm to USCS ft/in
 
 def metric_uscs_weight(weight):  # Converts Metric KG to USCS lbs
     uscs_weight = round(int(weight) * 2.2)  # round the decimal off
-    str_uscs_weight = f"{uscs_weight}lbs"  # makes it pretty but probably overkill for general use
+    str_uscs_weight = f"{uscs_weight}"  # convert to string
     return str_uscs_weight
 
 
