@@ -22,13 +22,13 @@ weight = MRIScreening.input_weight(metric)
 # VERIFY DEMOGRAPHICS
 
 # CURRENT AGE
-current_age = MyTools.current_age_calculator(dob)
+# current_age = MyTools.current_age_calculator(dob)
 
 # APPT AGE
 appt_age = MyTools.appt_age_calculator(appt, dob)
 
 # DEMOGRAPHICS INPUT CHECKER
-MRIScreening.check_demographics(name, sex, dob, metric, height, weight)  #!! didn't include sex.. ugh
+MRIScreening.check_demographics(name, sex, dob, metric, height, weight)
 
 # DEMOGRAPHICS COMPILER - can use for file input later
 demographics = MRIScreening.compile_demographics(name, sex, dob, metric, height, weight)

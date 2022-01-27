@@ -10,10 +10,8 @@ def current_age_calculator(dob):  # uses datetime for real time age calculation
     current_month = int(current_date.split("-")[1])
     current_day = int(current_date.split("-")[2])
     current_year = int(current_date.split("-")[0])
-    if (dob_month + dob_day) > (current_month + current_day):  # checks to see if birthday has happened yet this year
-        current_age = current_year - dob_year - 1  # if birthday hasn't happened then subtract a year
-    else:
-        current_age = current_year - dob_year  # if birthday happened this year
+    # tuples are compared iteratively False = 0, True = 1 - cool one liner
+    current_age = current_year - dob_year - ((dob_month, dob_day) > (current_month, current_day))
     return current_age
 
 

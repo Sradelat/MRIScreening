@@ -23,7 +23,7 @@ def check_card():  # if the patient has an implant card they can input the info 
 def input_name():
     while True:
         name = input("Enter your first and last name: ")
-        if " " not in name:
+        if " " not in name:  # checking for last name
             print("ERROR. Did not detect last name.")
         else:
             break
@@ -44,8 +44,8 @@ def input_dob():
                 print("ERROR. Incorrect format. Try again.")
             else:
                 break
-        except ValueError:  # practice not using bare except
-            print("ERROR. Incorrect format.")
+        except (ValueError, IndexError):  # practice not using bare except - using two exceptions now - LEVEL UP!
+            print("ERROR. Incorrect format.")  # if not number and if / not used
     return dob
 
 
@@ -95,7 +95,7 @@ def input_weight(metric):
             if weight.isdigit():
                 break
             else:
-                print("Please enter numbers only.")
+                print("Please enter numbers with no decimals only.")
         return weight
     # USCS
     if metric == "n":
@@ -104,25 +104,43 @@ def input_weight(metric):
             if weight.isdigit():
                 break
             else:
-                print("Please enter numbers only.")
+                print("Please enter numbers with no decimals only.")
                 continue
         return weight
 
 
 def compile_demographics(name, sex, dob, metric, height, weight):  # could put args in list for brevity
-    current_age = MyTools.current_age_calculator(dob)
+    current_age = MyTools.current_age_calculator(dob)  # calculate current age for display
+    month_conversions = {  # for formatting
+        "01": "January",
+        "02": "February",
+        "03": "March",
+        "04": "April",
+        "05": "May",
+        "06": "June",
+        "07": "July",
+        "08": "August",
+        "09": "September",
+        "10": "October",
+        "11": "November",
+        "12": "December"
+    }
+    dob_month = dob.split("/")[0]  # splitting and defining each element for reformatting
+    dob_day = dob.split("/")[1]
+    dob_year = dob.split("/")[2]
     while True:
-        if metric == "y":  # metric units to USCS units
-            # Might be nice to return DOB as Month Day, Year (July 19, 1990) for CLARITY!
+        if metric == "y":  # metric units to USCS units, also changed DOB format for clarity
             demographics = f"Name: {name}\n" \
                            f"Sex: {sex}\n" \
-                           f"DOB: {dob}  Age: {current_age}\n" \
+                           f"DOB: {month_conversions[dob_month]} {dob_day}, {dob_year}  " \
+                           f"Age: {current_age}\n" \
                            f"Height: {height}cm  Weight: {weight}kg"
             return demographics
-        else:
+        else:  # changed DOB format for clarity
             demographics = f"Name: {name}\n" \
                            f"Sex: {sex}\n" \
-                           f"DOB: {dob}  Age: {current_age}\n" \
+                           f"DOB: {month_conversions[dob_month]} {dob_day}, {dob_year}  " \
+                           f"Age: {current_age}\n" \
                            f"Height: {height}  Weight: {weight}lbs"
             return demographics
 
