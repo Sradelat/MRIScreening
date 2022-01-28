@@ -1,6 +1,7 @@
 from datetime import date
 import MyTools
 import MRIScreening
+
 # If Q = yes - prompt technologist with each instance
 # If no go - prompt staff
 # Dictionary to pull specifics? -> can't use input fx in dict
@@ -9,6 +10,24 @@ import MRIScreening
 # Set up a start menu (Questionnaire, settings, blah blah)
 # create schedule file next?
 
+# QUESTION LIST - each question goes in a list
+# less code
+# if questions are list you can back up by subtracting a count
+# can make the main list separate to the custom questions list so avoid mix up
+# think about how follow-up questions will work in a list if at all for where do they come? and how to skip?
+
+# QUESTION FXS - each question gets its own fx
+# a lot more code for this
+# can back up by calling prev fx (pass question # into fx?)
+# not sure how custom questions work here
+# follow-up questions will be easy
+
+# QUESTION TUPLES IN LIST - an idea to be explored
+# medium code?
+# store the answer with the question (question, answer)
+# if answer == "y" then follow-up? from where? how to skip?
+# how about (question, tag) then add tag and answer to a dictionary to call it specifically for follow-ups or user use
+# THIS IS DA WEY??
 
 appt = "07/20/2022"  # going to pull from file
 name = MRIScreening.input_name()
@@ -18,11 +37,8 @@ metric = MRIScreening.metric_system()
 height = MRIScreening.input_height(metric)
 weight = MRIScreening.input_weight(metric)
 
-
-# VERIFY DEMOGRAPHICS
-
 # CURRENT AGE
-# current_age = MyTools.current_age_calculator(dob)
+current_age = MyTools.current_age_calculator(dob)
 
 # APPT AGE
 appt_age = MyTools.appt_age_calculator(appt, dob)
@@ -108,7 +124,7 @@ if eyes == "y":
 print("Have you ever worked as a welder or metal shaver? [y/n] ")
 eyes_occupation = MRIScreening.valid_answer()
 
-print("Do you now or have you ever had an injury involving metal to your eye? [y/n] ")
+print("Do you now or have you ever had an injury involving metal to your eye? [y/n] ")  # if metal in eye alert staff
 metal_in_eyes = MRIScreening.valid_answer()
 if metal_in_eyes == "y":
     print("Did you have the metal removed from your eye by a doctor? [y/n] ")

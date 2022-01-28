@@ -1,5 +1,5 @@
 from datetime import date
-# Saving these function for general use as needed.
+# Saving these functions for general use as needed.
 
 
 def current_age_calculator(dob):  # uses datetime for real time age calculation
@@ -22,10 +22,8 @@ def appt_age_calculator(appt, dob):  # Calculates patient's age at appointment d
     appt_month = int(appt.split("/")[0])
     appt_day = int(appt.split("/")[1])
     appt_year = int(appt.split("/")[2])
-    if (dob_month + dob_day) > (appt_month + appt_day):  # checks to see if birthday has happened yet this year
-        appt_age = appt_year - dob_year - 1  # if birthday hasn't happened then subtract a year
-    else:
-        appt_age = appt_year - dob_year  # if birthday happened this year
+    # tuples are compared iteratively False = 0, True = 1 - cool one liner
+    appt_age = appt_year - dob_year - ((dob_month, dob_day) > (appt_month, appt_day))
     return appt_age
 
 

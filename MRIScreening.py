@@ -148,7 +148,7 @@ def compile_demographics(name, sex, dob, metric, height, weight):  # could put a
 def check_demographics(name, sex, dob, metric, height, weight):  # getting the demographics right is very important
     while True:
         demographics = compile_demographics(name, sex, dob, metric, height, weight)
-        print(f"{demographics}\nPlease verify that the information above is correct. [y/n] ")
+        print(f"{demographics}\nPlease verify that the information above is correct. [y/n] ")  # if n can edit
         correct = valid_answer()
         if correct == "y":
             return demographics
@@ -157,21 +157,21 @@ def check_demographics(name, sex, dob, metric, height, weight):  # getting the d
             while True:
                 edit_field = input()
                 if edit_field.isdigit() and int(edit_field) <= 5:
-                    break
+                    break  # if correct input continue
                 else:
                     print("Error. Please input one number between 1 and 5 corresponding to the field that needs to be "
-                          "corrected.")
-            if edit_field == "1":
+                          "corrected.")  # catch incorrect input
+            if edit_field == "1":  # each field can be edited separately to avoid redundant input by user
                 name = input_name()
             elif edit_field == "2":
                 sex = input_sex()
             elif edit_field == "3":
                 dob = input_dob()
             elif edit_field == "4":
-                metric = metric_system()
+                metric = metric_system()  # ask again in case input was incorrect
                 height = input_height(metric)
             else:
-                metric = metric_system()
+                metric = metric_system()  # ask again in case input was incorrect
                 weight = input_weight(metric)
 
 
