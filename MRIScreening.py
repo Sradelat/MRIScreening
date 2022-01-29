@@ -2,6 +2,35 @@ import MyTools
 # Decided I needed to add more specific functions to the program
 
 
+def home(scan_pacemakers=True):
+    print("1. Start Questionnaire\n2. Edit Questions\n3. Open Settings\nEnter the number of which command you want.")
+    command = input()
+    if command == "1":
+        print("Starting Questionnaire..")
+        name = input_name()
+        sex = input_sex()
+        dob = input_dob()
+        metric = metric_system()
+        height = input_height(metric)
+        weight = input_weight(metric)
+        check_demographics(name, sex, dob, metric, height, weight)
+        questionnaire(scan_pacemakers)
+    if command == "3":
+        while True:
+            print(f"Which setting would you like to change?\n1. Scan pacemakers = {scan_pacemakers}")  # need labs?
+            while True:
+                command = input()
+                if command == "1":
+                    if scan_pacemakers:
+                        scan_pacemakers = False
+                        break
+                    else:
+                        scan_pacemakers = True
+                        break
+                if command == "home":
+                    home(scan_pacemakers)
+
+
 def valid_answer():  # checking to see if answer to question was y or n - otherwise throw error
     while True:  # loop until satisfied
         answer = input().lower()  # not case-sensitive
@@ -175,3 +204,141 @@ def check_demographics(name, sex, dob, metric, height, weight):  # getting the d
                 weight = input_weight(metric)
 
 
+completed_form = {}
+
+
+def questionnaire(scan_pacemakers):  # can check in between questions for a custom question?
+    print("Is there ANY chance you could be pregnant? [y/n] ")
+    completed_form["pregnant"] = valid_answer()
+
+    print("Do you currently have a pacemaker/defibrillator? [y/n] ")
+    completed_form["pacemaker"] = valid_answer()
+    if completed_form["pacemaker"] == "y":
+        if scan_pacemakers:
+            completed_form["pacemaker info"] = check_card()
+        if not scan_pacemakers:
+            input("We can not scan pacemakers at this location. Please inform staff. Press enter to exit.")
+            quit()
+
+    print("Have you ever had a pacemaker/defibrillator removed? [y/n] ")
+    completed_form["past pacemaker"] = valid_answer()
+    if completed_form["past pacemaker"] == "y":
+        print("Do you have abandoned pacemaker wires still in place?")
+        completed_form["wires"] = valid_answer()
+        if completed_form["wires"] == "y":
+            completed_form["wires info"] = check_card()
+
+    print("Do you have a brain aneurysm clip? [y/n] ")
+    completed_form["clip"] = valid_answer()
+    if completed_form["clip"] == "y":
+        completed_form["clip info"] = check_card()
+
+    print("Do you have a nerve or bone growth stimulator? [y/n] ")
+    completed_form["stimulator"] = valid_answer()
+    if completed_form["stimulator"] == "y":
+        completed_form["stimulator info"] = check_card()
+
+    print("Do you have any stents? [y/n] ")
+    completed_form["stents"] = valid_answer()
+    if completed_form["stents"] == "y":
+        completed_form["stents info"] = check_card()
+
+    print("Do you have any intravascular coils? [y/n] ")
+    completed_form["coils"] = valid_answer()
+    if completed_form["coils"] == "y":
+        completed_form["coils info"] = check_card()
+
+    print("Do you have any vascular filters? [y/n] ")
+    completed_form["filters"] = valid_answer()
+    if completed_form["filters"] == "y":
+        completed_form["filters info"] = check_card()
+
+    print("Do you have an artificial heart valve? [y/n] ")
+    completed_form["valves"] = valid_answer()
+    if completed_form["valves"] == "y":
+        completed_form["valves info"] = check_card()
+
+    print("Do you have a shunt? [y/n] ")
+    completed_form["shunt"] = valid_answer()
+    if completed_form["shunt"] == "y":
+        completed_form["shunt info"] = check_card()
+
+    print("Do you have any eye implants? [y/n] ")
+    completed_form["eyes"] = valid_answer()
+    if completed_form["eyes"] == "y":
+        completed_form["eyes info"] = check_card()
+
+    print("Have you ever worked as a welder or metal shaver? [y/n] ")
+    completed_form["eyes occupation"] = valid_answer()
+
+    print("Do you now or have you ever had an injury involving metal to your eye? [y/n] ")
+    completed_form["metal in eyes"] = valid_answer()
+    if completed_form["metal in eyes"] == "y":
+        print("Did you have the metal removed from your eye by a doctor? [y/n] ")
+        completed_form["metal in eyes removed"] = valid_answer()
+
+    print("Do you have any shrapnel, BB's, or gunshot wounds? [y/n] ")
+    completed_form["foreign_body"] = valid_answer()
+
+    print("Do you have any ear implants? [y/n] ")
+    completed_form["ears"] = valid_answer()
+    if completed_form["ears"] == "y":
+        completed_form["ears info"] = check_card()
+
+    print("Do you wear hearing aids? [y/n] ")
+    completed_form["hearing aids"] = valid_answer()
+    if completed_form["hearing aids"] == "y":
+        print("Your hearing aids will need to be removed for your MRI.")
+
+    print("Do you have an implanted drug pump? [y/n] ")
+    completed_form["drug pump"] = valid_answer()
+    if completed_form["drug pump"] == "y":
+        completed_form["drug pump info"] = check_card()
+
+    print("Do you have an insulin pump? [y/n] ")
+    completed_form["insulin pump"] = valid_answer()
+    if completed_form["insulin pump"] == "y":
+        print("Your insulin pump will need to be removed for your MRI. Please plan accordingly.")
+
+    print("Any other metallic implants in your body? [y/n] ")
+    completed_form["metallic implants"] = valid_answer()
+    if completed_form["metallic implants"] == "y":
+        print("Please type in any metallic implants in your body that we have not asked about: ")
+        completed_form["metallic implants info"] = input()
+
+    print("Have you ever had MRI contrast before? [y/n] ")  # have you had a reaction?
+    completed_form["contrast"] = valid_answer()
+    if completed_form["contrast"] == "y":
+        print("Did your body have a negative reaction to the MRI contrast?")
+        completed_form["reaction"] = valid_answer()
+
+    print("Are you diabetic? [y/n] ")
+    completed_form["diabetic"] = valid_answer()
+
+    print("Do you have a history of high blood pressure? [y/n] ")
+    completed_form["blood_pressure"] = valid_answer()
+
+    print("Do you have a history of kidney failure? [y/n] ")
+    completed_form["kidneys"] = valid_answer()
+
+    print("Are you on dialysis? [y/n] ")
+    completed_form["dialysis"] = valid_answer()
+
+    print("Do you have any liver disease? [y/n] ")
+    completed_form["liver_disease"] = valid_answer()
+
+    print("Do you have multiple myeloma? [y/n] ")
+    completed_form["multiple_myeloma"] = valid_answer()
+
+
+def get_flagged_answers():
+    for k, v in completed_form.items():
+        if v == "y":
+            print(k, v)
+            continue
+        if v == "n":
+            continue
+        if "info" in k:
+            print(k, v)
+        else:
+            continue
