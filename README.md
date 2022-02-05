@@ -28,8 +28,8 @@ custom questions. It will also include settings that can be tweaked, all made to
 
 ### Program Features
 
-- Deeply editable questions
-- Red flags brought to the forefront
-- Ability to tweak certain settings
+- Deeply customizable questions (more coming soon)
+- Red flags brought to the forefront (not implemented yet)
+- Ability to tweak certain settings (not implemented yet)
 - Metric to USCS height and weight converter
 - Age calculator based on DOB
