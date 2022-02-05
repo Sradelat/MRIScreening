@@ -222,7 +222,7 @@ MRIScreening.home()
 #              ("Do you have any stents? [y/n] ", "stents")
 #              ]
 
-# # COPY BACK UP
+# COPY BACK UP
 # pregnant = input("Is there ANY chance you could be pregnant? [y/n] ")
 # pacemaker = input("Do you currently have a pacemaker/defibrillator? [y/n] ")
 # past_pacemaker = input("Have you ever had a pacemaker/defibrillator? [y/n] ")
