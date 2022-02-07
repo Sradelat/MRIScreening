@@ -60,17 +60,9 @@ MRIScreening.home()
 #     demographics = f"Name: {name}\nDOB: {dob}  Age: {current_age}\nHeight: {height}  Weight: {weight}lbs"
 # print(f"DEBUG: METRIC CONVERTER\n{demographics}")
 
-# SETTINGS - need a hub to customize settings such as this
-# scan_pacemakers = True
-# edit_questions = False
-
-
-# QUESTIONS - not sure if questions should be added to a list to iterate through. I want questions to be customizable.
-# Perhaps add a clause at the end for custom questions the admin user wants to add in
-# MRIScreening.questionnaire(scan_pacemakers)
 
 # EXTRACTING "YES" ANSWERS AND RELATED INFO
-# MRIScreening.get_flagged_answers()
+MRIScreening.get_flagged_answers()
 
 
 
