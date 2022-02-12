@@ -62,7 +62,7 @@ MRIScreening.home()
 
 
 # EXTRACTING "YES" ANSWERS AND RELATED INFO
-MRIScreening.get_flagged_answers()
+# MRIScreening.get_flagged_answers()
 
 
 

@@ -1,4 +1,12 @@
 import MyTools
+import collections
+import re
+
+# TODO:
+#  Settings
+#  Height, Weight, Age flags?
+#  Height, Weight, Age conversions to write
+#  Define write function
 
 
 def home(scan_pacemakers=True):
@@ -7,15 +15,45 @@ def home(scan_pacemakers=True):
         command = input()
         if command == "1":
             print("Starting Questionnaire..")
-            # name = input_name()  # SKIPPING TO TEST QUESTIONNAIRE
-            # sex = input_sex()
-            # dob = input_dob()
-            # metric = metric_system()
-            # height = input_height(metric)
-            # weight = input_weight(metric)
-            # check_demographics(name, sex, dob, metric, height, weight)
+            name = input_name()  # SKIPPING TO TEST QUESTIONNAIRE
+            sex = input_sex()
+            dob = input_dob()
+            metric = metric_system()
+            height = input_height(metric)
+            weight = input_weight(metric)
+            d = check_demographics(name, sex, dob, metric, height, weight)
+            # demographics(fname='Shawn', lname='Radelat', sex='Male', dob='07/19/1990', metric='n', height="5'9",
+            #              weight='135')
             questionnaire()
-            # questionnaire(scan_pacemakers) # BACK UP
+            get_flagged_answers()  # populate flagged answers list
+            fhand = open("Schedule.txt", "r")
+            content = fhand.readlines()  # creates list of lines in the file
+            for line in enumerate(content):
+                if re.search(f"{d.lname}, {d.fname} DOB: {d.dob}", line[1]):  # else try to merge? create new entry? lol
+                    i = line[0]  # catches index of matching line
+                    count = 1
+                    new_index = i + count  # uses current line index + how many lines to skip to get to desired index
+                    while True:
+                        if "[MRI Screening Form]" in content[new_index]:  # finds string under patient's info
+                            di = new_index + 1  # desired indexed line to write to
+                            break
+                        else:
+                            count += 1  # used in a sum to parse to proper index for writing
+                    insert_form = ""  # what will be written at index
+                    for question in final:
+                        insert_form += f"{question[0][0]} {question[1].upper()}\n"  # populate final form
+                    insert_form += "\nFLAGGED QUESTIONS:\n\n"
+                    for answer in flagged_answers:  # populate flagged questions
+                        try:
+                            insert_form += f"{answer[0]} {answer[1]} -- {answer[2]}\n"  # with card info
+                        except IndexError:
+                            insert_form += f"{answer[0]} {answer[1]}\n"  # without card info
+                    insert_form += f"\n  There are {len(flagged_answers)} flagged questions for this patient.\n"
+                    content[di] = f"{insert_form}\n"  # inserting form into the indexed line where it should go
+                    with open("Schedule.txt", "w") as file:
+                        file.writelines(content)  # rewrites entire file? with new form included - seems inefficient
+                else:
+                    pass
             return
         if command == "2":
             edit_questions()
@@ -224,14 +262,14 @@ def compile_demographics(name, sex, dob, metric, height, weight):  # could put a
     dob_year = dob.split("/")[2]
     while True:
         if metric == "y":  # metric units to USCS units, also changed DOB format for clarity
-            demographics = f"Name: {name}\n" \
+            demographics = f"\nFirst Name: {name.split()[0]} \nLast Name: {name.split()[1]}\n" \
                            f"Sex: {sex}\n" \
                            f"DOB: {month_conversions[dob_month]} {dob_day}, {dob_year}  " \
                            f"Age: {current_age}\n" \
                            f"Height: {height}cm  Weight: {weight}kg"
             return demographics
         else:  # changed DOB format for clarity
-            demographics = f"Name: {name}\n" \
+            demographics = f"\nFirst Name: {name.split()[0]} \nLast Name: {name.split()[1]}\n" \
                            f"Sex: {sex}\n" \
                            f"DOB: {month_conversions[dob_month]} {dob_day}, {dob_year}  " \
                            f"Age: {current_age}\n" \
@@ -242,16 +280,20 @@ def compile_demographics(name, sex, dob, metric, height, weight):  # could put a
 def check_demographics(name, sex, dob, metric, height, weight):  # getting the demographics right is very important
     while True:
         demographics = compile_demographics(name, sex, dob, metric, height, weight)
-        print(f"{demographics}\nPlease verify that the information above is correct. [y/n] ")  # if n can edit
+        print(f"{demographics}\nPlease verify that the information above is correct. [y/n] ")  # if 'n' -  can edit
         correct = valid_answer()
         if correct == "y":
-            return demographics
+            demographics = collections.namedtuple("demographics", ["fname", "lname", "sex", "dob",
+                                                                   "metric", "height", "weight"])  #!!!!!!
+            d = demographics(fname=name.split()[0], lname=name.split()[1], sex=sex, dob=dob,
+                             metric=metric, height=height, weight=weight)
+            return d
         if correct == "n":  # May separate into another fx? edit_demographics
             print("Input the number of the field that is incorrect.\n1. Name\n2. Sex\n3. DOB\n4. Height\n5. Weight")
             while True:
                 edit_field = input()
                 if edit_field.isdigit() and int(edit_field) <= 5:
-                    break  # if correct input continue
+                    break  # if correct input continue on
                 else:
                     print("Error. Please input one number between 1 and 5 corresponding to the field that needs to be "
                           "corrected.")  # catch incorrect input
@@ -276,37 +318,37 @@ def check_demographics(name, sex, dob, metric, height, weight):  # getting the d
 #                3 optional - follow-up questions; helps back command be accurate.. could remove this now? Use prev Q
 #                4 input - accepts raw input instead of the default 'y', 'n', or 'back'.
 
-
-form = [("Is there ANY chance you could be pregnant?", "y", 0, 0, 0),
-        ("Do you currently have a pacemaker/defibrillator?", "y", "card", 0, 0),
-        ("Have you ever had a pacemaker/defibrillator removed in the past?", "y", 0, 0, 0),
-        ("Do you have abandoned pacemaker wires still in place?", "y", "card", "opt", 0),
-        ("Do you have a brain aneurysm clip?", "y", "card", 0, 0),
-        ("Do you have a nerve or bone growth stimulator?", "y", "card", 0, 0),
-        ("Do you have any stents?", "y", "card", 0, 0),
-        ("Do you have any intravascular coils?", "y", "card", 0, 0),
-        ("Do you have any vascular filters?", "y", "card", 0, 0),
-        ("Do you have an artificial heart valve?", "y", "card", 0, 0),
-        ("Do you have a shunt?", "y", "card", 0, 0),
-        ("Do you have any eye implants?", "y", "card", 0, 0),
-        ("Have you ever worked as a welder or metal shaver?", "y", 0, 0, 0),
-        ("Do you now or have you ever had an injury involving metal to your eye?", "y", 0, 0, 0),
-        ("Is there any possibility a metal fragment is still in your eye?", "y", 0, "opt", 0),
-        ("Do you have any shrapnel, BB's, or gunshot wounds?", "y", 0, 0, 0),
-        ("Do you have any ear implants?", "y", "card", 0, 0),
-        ("Do you wear hearing aids?", "y", 0, 0, 0),
-        ("Do you have an implanted drug pump?", "y", "card", 0, 0),
-        ("Do you have an insulin pump?", "y", "card", 0, 0),
-        ("If you have any other metallic implants that were not asked about, please type them in now. "
-        "If not, type 'n'. ", "raw", 0, 0, "input"),  #
-        ("Have you ever had MRI contrast before?", "NA", 0, 0, 0),  #
-        ("Has your body ever had a negative reaction to MRI contrast?", "y", 0, "opt", 0),
-        ("Are you diabetic?", "y", 0, 0, 0),
-        ("Do you have a history of high blood pressure?", "y", 0, 0, 0),
-        ("Do you have a history of kidney failure?", "y", 0, 0, 0),
-        ("Are you on dialysis?", "y", 0, 0, 0),
-        ("Do you have any liver disease?", "y", 0, 0, 0),
-        ("Do you have multiple myeloma?", "y", 0, 0, 0)]
+# consider named tuples if these options are not to be customized
+form = [["Is there ANY chance you could be pregnant?", "y", 0, 0, 0],
+        ["Do you currently have a pacemaker/defibrillator?", "y", "card", 0, 0],
+        ["Have you ever had a pacemaker/defibrillator removed in the past?", "y", 0, 0, 0],
+        ["Do you have abandoned pacemaker wires still in place?", "y", "card", "opt", 0],
+        ["Do you have a brain aneurysm clip?", "y", "card", 0, 0],
+        ["Do you have a nerve or bone growth stimulator?", "y", "card", 0, 0],
+        ["Do you have any stents?", "y", "card", 0, 0],
+        ["Do you have any intravascular coils?", "y", "card", 0, 0],
+        ["Do you have any vascular filters?", "y", "card", 0, 0],
+        ["Do you have an artificial heart valve?", "y", "card", 0, 0],
+        ["Do you have a shunt?", "y", "card", 0, 0],
+        ["Do you have any eye implants?", "y", "card", 0, 0],
+        ["Have you ever worked as a welder or metal shaver?", "y", 0, 0, 0],
+        ["Do you now or have you ever had an injury involving metal to your eye?", "y", 0, 0, 0],
+        ["Is there any possibility a metal fragment is still in your eye?", "y", 0, "opt", 0],
+        ["Do you have any shrapnel, BB's, or gunshot wounds?", "y", 0, 0, 0],
+        ["Do you have any ear implants?", "y", "card", 0, 0],
+        ["Do you wear hearing aids?", "y", 0, 0, 0],
+        ["Do you have an implanted drug pump?", "y", "card", 0, 0],
+        ["Do you have an insulin pump?", "y", "card", 0, 0],
+        ["If you have any other metallic implants that were not asked about, please type them in now. "
+        "If not, type 'n'. ", "raw", 0, 0, "input"],  # special case - raw input
+        ["Have you ever had MRI contrast before?", "NA", 0, 0, 0],  # special case - no flag
+        ["Has your body ever had a negative reaction to MRI contrast?", "y", 0, "opt", 0],
+        ["Are you diabetic?", "y", 0, 0, 0],
+        ["Do you have a history of high blood pressure?", "y", 0, 0, 0],
+        ["Do you have a history of kidney failure?", "y", 0, 0, 0],
+        ["Are you on dialysis?", "y", 0, 0, 0],
+        ["Do you have any liver disease?", "y", 0, 0, 0],
+        ["Do you have multiple myeloma?", "y", 0, 0, 0]]
 
 
 graveyard = []  # where unused questions go to die and become undead again
@@ -368,7 +410,7 @@ def questionnaire():
                 continue
         if form[q_count] == form[-1]:
             break  # end questionnaire
-    return
+    return final
 
 
 def final_form():  # prints screen form questions with answers
@@ -381,26 +423,27 @@ def final_form():  # prints screen form questions with answers
     return
 
 
+flagged_answers = []
+
+
 def get_flagged_answers():
-    count = 0  # counts flagged questions
-    print("\n\nFLAGGED QUESTIONS:")  # header
     for entry in final:
         if entry[0][2] == "raw":  # catches raw input option
             if entry[0][1] != "n":  # if == 'n' no flag
-                count += 1
-                print(entry[0][0], entry[1])  # question, answer
+                flagged_answers.append((entry[0][0], entry[1]))  # question, answer
         elif entry[0][1] == entry[1]:  # if tag == answer
-            try:
-                print(entry[0][0], entry[1].upper(), entry[2])  # question, answer, and catches card info attached
+            try:  # question, answer, and catches card info attached
+                flagged_answers.append((entry[0][0], entry[1].upper(), entry[2]))
             except IndexError:
-                print(entry[0][0], entry[1].upper())  # question and answer
-            count += 1
-        elif entry[0][1] == "NA":  # if option is NA it will never flag
+                flagged_answers.append((entry[0][0], entry[1].upper()))  # question and answer
+        elif entry[0][1] == "NA":  # if option is NA it will never flag no matter the answer
             pass
-    print(f"\nThere are {count} flagged questions for this patient. Scroll up to see the entire screening form.")
     return
 
 
+# consider changing demographics to a named tuple and passing it in
+# divide first and last name before this point
+# def merge_form():
 
 
 
