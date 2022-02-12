@@ -29,7 +29,15 @@ custom questions. It will also include settings that can be tweaked, all made to
 ### Program Features
 
 - Deeply customizable questions (more coming soon)
-- Red flags brought to the forefront (not implemented yet)
+- Red flags brought to the forefront
 - Ability to tweak certain settings (not implemented yet)
 - Metric to USCS height and weight converter
 - Age calculator based on DOB
+
+
+### Finalizing Improvements
+
+If this program were to be brought to a reality, a few minor, yet intricate improvements are intended:
+1. Flag height and weight based on MRI scanner restrictions.
+2. Calculate age of patient on appointment date instead of current date.
+3. Detect what type of scan is being performed and flag accordingly (i.e. contrast studies, height, weight).

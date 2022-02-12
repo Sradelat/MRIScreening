@@ -4,9 +4,7 @@ import re
 
 # TODO:
 #  Settings
-#  Height, Weight, Age flags?
-#  Height, Weight, Age conversions to write
-#  Define write function
+#  Custom questions
 
 
 def home(scan_pacemakers=True):
@@ -15,45 +13,17 @@ def home(scan_pacemakers=True):
         command = input()
         if command == "1":
             print("Starting Questionnaire..")
-            name = input_name()  # SKIPPING TO TEST QUESTIONNAIRE
+            name = input_name()
             sex = input_sex()
             dob = input_dob()
             metric = metric_system()
             height = input_height(metric)
             weight = input_weight(metric)
-            d = check_demographics(name, sex, dob, metric, height, weight)
-            # demographics(fname='Shawn', lname='Radelat', sex='Male', dob='07/19/1990', metric='n', height="5'9",
-            #              weight='135')
+            d = check_demographics(name, sex, dob, metric, height, weight)  # learned named tuples
+            # demographics(fname='John', lname='Doe', sex='Male', dob='07/27/1957', height="5'9", weight='135')
             questionnaire()
             get_flagged_answers()  # populate flagged answers list
-            fhand = open("Schedule.txt", "r")
-            content = fhand.readlines()  # creates list of lines in the file
-            for line in enumerate(content):
-                if re.search(f"{d.lname}, {d.fname} DOB: {d.dob}", line[1]):  # else try to merge? create new entry? lol
-                    i = line[0]  # catches index of matching line
-                    count = 1
-                    new_index = i + count  # uses current line index + how many lines to skip to get to desired index
-                    while True:
-                        if "[MRI Screening Form]" in content[new_index]:  # finds string under patient's info
-                            di = new_index + 1  # desired indexed line to write to
-                            break
-                        else:
-                            count += 1  # used in a sum to parse to proper index for writing
-                    insert_form = ""  # what will be written at index
-                    for question in final:
-                        insert_form += f"{question[0][0]} {question[1].upper()}\n"  # populate final form
-                    insert_form += "\nFLAGGED QUESTIONS:\n\n"
-                    for answer in flagged_answers:  # populate flagged questions
-                        try:
-                            insert_form += f"{answer[0]} {answer[1]} -- {answer[2]}\n"  # with card info
-                        except IndexError:
-                            insert_form += f"{answer[0]} {answer[1]}\n"  # without card info
-                    insert_form += f"\n  There are {len(flagged_answers)} flagged questions for this patient.\n"
-                    content[di] = f"{insert_form}\n"  # inserting form into the indexed line where it should go
-                    with open("Schedule.txt", "w") as file:
-                        file.writelines(content)  # rewrites entire file? with new form included - seems inefficient
-                else:
-                    pass
+            write_form(d)
             return
         if command == "2":
             edit_questions()
@@ -283,10 +253,13 @@ def check_demographics(name, sex, dob, metric, height, weight):  # getting the d
         print(f"{demographics}\nPlease verify that the information above is correct. [y/n] ")  # if 'n' -  can edit
         correct = valid_answer()
         if correct == "y":
-            demographics = collections.namedtuple("demographics", ["fname", "lname", "sex", "dob",
-                                                                   "metric", "height", "weight"])  #!!!!!!
-            d = demographics(fname=name.split()[0], lname=name.split()[1], sex=sex, dob=dob,
-                             metric=metric, height=height, weight=weight)
+            demographics = collections.namedtuple("demographics", ["fname", "lname", "sex", "dob", "height", "weight"])
+            if metric == "y":  # convert before permanent storage
+                d = demographics(fname=name.split()[0], lname=name.split()[1], sex=sex, dob=dob,
+                                 height=MyTools.metric_uscs_height(height), weight=MyTools.metric_uscs_weight(weight))
+            else:
+                d = demographics(fname=name.split()[0], lname=name.split()[1], sex=sex,
+                                 dob=dob, height=height, weight=weight)
             return d
         if correct == "n":  # May separate into another fx? edit_demographics
             print("Input the number of the field that is incorrect.\n1. Name\n2. Sex\n3. DOB\n4. Height\n5. Weight")
@@ -441,9 +414,53 @@ def get_flagged_answers():
     return
 
 
-# consider changing demographics to a named tuple and passing it in
-# divide first and last name before this point
-# def merge_form():
+def write_form(d):
+    fhand = open("Schedule.txt", "r")
+    content = fhand.readlines()  # creates list of lines in the file
+    match = 0
+    for line in enumerate(content):
+        if re.search(f"{d.lname}, {d.fname} DOB: {d.dob}", line[1]):  # else try to merge? create new entry? lol
+            match += 1
+            i = line[0]  # catches index of matching line
+            count = 1
+            new_index = i + count  # uses current line index + how many lines to skip to get to desired index
+            while True:
+                if "[MRI Screening Form]" in content[new_index]:  # finds string under patient's info
+                    di = new_index + 1  # desired indexed line to write to
+                    break
+                else:
+                    count += 1  # used in a sum to parse to proper index for writing
+            insert_form = f"HEIGHT: {d.height} WEIGHT: {d.weight} " \
+                          f"AGE: {MyTools.current_age_calculator(d.dob)}\n"  # what will be written at index
+            for question in final:
+                insert_form += f"{question[0][0]} {question[1].upper()}\n"  # populate final form
+            insert_form += "\nFLAGGED QUESTIONS:\n\n"
+            for answer in flagged_answers:  # populate flagged questions
+                try:
+                    insert_form += f"{answer[0]} {answer[1]} -- {answer[2]}\n"  # with card info
+                except IndexError:
+                    insert_form += f"{answer[0]} {answer[1]}\n"  # without card info
+            insert_form += f"\n  There are {len(flagged_answers)} flagged questions for this patient.\n"
+            content[di] = f"{insert_form}\n"  # inserting form into the indexed line where it should go
+            with open("Schedule.txt", "w") as file:
+                file.writelines(content)  # rewrites entire file? with new form included - seems inefficient
+        else:
+            pass
+    if match == 0:  # if name is not on file it gets appended
+        insert_form = f"\n\nNAME: {d.lname}, {d.fname} DOB: {d.dob} SEX: {d.sex} PHONE: NA\n[MRI Screening Form]\n" \
+                      f"HEIGHT: {d.height} WEIGHT: {d.weight} AGE: {MyTools.current_age_calculator(d.dob)}\n"
+        for question in final:
+            insert_form += f"{question[0][0]} {question[1].upper()}\n"  # populate final form
+        insert_form += "\nFLAGGED QUESTIONS:\n\n"
+        for answer in flagged_answers:  # populate flagged questions
+            try:
+                insert_form += f"{answer[0]} {answer[1]} -- {answer[2]}\n"  # with card info
+            except IndexError:
+                insert_form += f"{answer[0]} {answer[1]}\n"  # without card info
+        insert_form += f"\n  There are {len(flagged_answers)} flagged questions for this patient.\n"
+        with open("Schedule.txt", "a") as file:  # append
+            file.writelines(insert_form)
+    return
 
 
 
