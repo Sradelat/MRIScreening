@@ -4,11 +4,11 @@ import re
 
 # TODO:
 #  Settings
-#  Custom questions
+#  Catch errors in menus
 
 
 def home(scan_pacemakers=True):
-    print("1. Start Questionnaire\n2. Edit Questions\n3. Open Settings\nEnter the number of which command you want.")
+    print("1. Start Questionnaire\n2. Edit Questions\n3. Settings\nEnter the number of which command you want.")
     while True:
         command = input()
         if command == "1":
@@ -45,14 +45,14 @@ def home(scan_pacemakers=True):
                         home(scan_pacemakers)
                         return
         else:
-            print("Error. Invalid command.")
+            print("Invalid command. Enter a the number of your answer.")
 
 
 def edit_questions():
     for question in form:
         print(question[0])
     print("\nAbove is a list of questions actively in the screening form. Would you like to:"
-          "\n1. Add template question(s)\n2. Remove question(s)\n3. Sort questions")
+          "\n1. Add template question(s)\n2. Remove question(s)\n3. Sort questions\n4. Add custom question(s)")
     answer = input()
     if answer == "1":  # Add template questions
         while True:
@@ -102,8 +102,50 @@ def edit_questions():
                 break
             if done == "n":
                 continue
-    # print("DEBUG", questions)
-    # print("DEBUG", graveyard)
+    if answer == "4":
+        custom_question = input("Please enter the question you would like to be asked:\n")
+        while True:
+            input_type = input("Is it a..\n1. Yes or no question\n2. Raw input question\n")
+            if input_type == "1":
+                inp = 0
+                while True:
+                    answer = input("Which answer will flag the question?\n1. Yes\n2. No\n3. No flag needed\n")
+                    if answer == "1":
+                        flag = "y"
+                        break
+                    elif answer == "2":
+                        flag = "n"
+                        break
+                    elif answer == "3":
+                        flag = "NA"
+                        break
+                    else:
+                        print("Invalid command. Enter a the number of your answer.")
+                break
+            elif input_type == "2":
+                flag = "raw"
+                inp = "input"
+                break
+            else:
+                print("Invalid command. Enter a the number of your answer.")
+        while True:
+            answer = input("Does the question need.. \n1. An implant card follow-up question?\n2. A reminder to remove"
+                           "a metallic object (i.e. hearing aids)\n3. Neither")
+            if answer == "1":
+                react = "card"
+                break
+            elif answer == "2":
+                react = input("Please enter the object that will need to be removed: ").lower()
+                break
+            elif answer == "3":
+                react = 0
+                break
+            else:
+                print("Invalid command. Enter a the number of your answer.")
+        for question in enumerate(form):  # print form
+            print(question[0], question[1][0])
+        custom_add = input("\nEnter the number of where you would like it to go: ")  # move to desired index
+        form.insert(int(custom_add), [custom_question, flag, react, inp])
 
 
 def valid_answer():  # checking to see if answer to question was y or n - otherwise throw error
@@ -284,44 +326,45 @@ def check_demographics(name, sex, dob, metric, height, weight):  # getting the d
                 weight = input_weight(metric)
 
 
-# FORM LIST/TUPLE FORMAT
-# index format = 0 question - printed text for user
-#                1 tag - if input = tag it is flagged for technologist
-#                2 card - if "y" asks for card info and stores it
-#                3 optional - follow-up questions; helps back command be accurate.. could remove this now? Use prev Q
-#                4 input - accepts raw input instead of the default 'y', 'n', or 'back'.
+def removal_message(removable):
+    return input(f"Before your MRI scan, you will be asked to remove your {removable}. Press enter to acknowledge.")
 
-# consider named tuples if these options are not to be customized
-form = [["Is there ANY chance you could be pregnant?", "y", 0, 0, 0],
-        ["Do you currently have a pacemaker/defibrillator?", "y", "card", 0, 0],
-        ["Have you ever had a pacemaker/defibrillator removed in the past?", "y", 0, 0, 0],
-        ["Do you have abandoned pacemaker wires still in place?", "y", "card", "opt", 0],
-        ["Do you have a brain aneurysm clip?", "y", "card", 0, 0],
-        ["Do you have a nerve or bone growth stimulator?", "y", "card", 0, 0],
-        ["Do you have any stents?", "y", "card", 0, 0],
-        ["Do you have any intravascular coils?", "y", "card", 0, 0],
-        ["Do you have any vascular filters?", "y", "card", 0, 0],
-        ["Do you have an artificial heart valve?", "y", "card", 0, 0],
-        ["Do you have a shunt?", "y", "card", 0, 0],
-        ["Do you have any eye implants?", "y", "card", 0, 0],
-        ["Have you ever worked as a welder or metal shaver?", "y", 0, 0, 0],
-        ["Do you now or have you ever had an injury involving metal to your eye?", "y", 0, 0, 0],
-        ["Is there any possibility a metal fragment is still in your eye?", "y", 0, "opt", 0],
-        ["Do you have any shrapnel, BB's, or gunshot wounds?", "y", 0, 0, 0],
-        ["Do you have any ear implants?", "y", "card", 0, 0],
-        ["Do you wear hearing aids?", "y", 0, 0, 0],
-        ["Do you have an implanted drug pump?", "y", "card", 0, 0],
-        ["Do you have an insulin pump?", "y", "card", 0, 0],
+
+# index format = 0 question - printed text for user
+#                1 tag - if input = tag it is flagged for tech
+#                2 card or removable - if "y" asks for card info / prints removal message
+#                3 input - accepts raw input instead of the default 'y', 'n', or 'back'.
+
+
+form = [["Is there ANY chance you could be pregnant?", "y", 0, 0],
+        ["Do you currently have a pacemaker/defibrillator?", "y", "card", 0],
+        ["Do you have abandoned pacemaker wires still in place?", "y", "card", 0],
+        ["Do you have a brain aneurysm clip?", "y", "card", 0],
+        ["Do you have a nerve or bone growth stimulator?", "y", "card", 0],
+        ["Do you have any stents?", "y", "card", 0],
+        ["Do you have any intravascular coils?", "y", "card", 0],
+        ["Do you have any vascular filters?", "y", "card", 0],
+        ["Do you have an artificial heart valve?", "y", "card", 0],
+        ["Do you have a shunt?", "y", "card", 0],
+        ["Do you have any eye implants?", "y", "card", 0],
+        ["Have you ever worked as a welder or metal shaver?", "y", 0, 0],
+        ["Do you now or have you ever had an injury involving metal to your eye?", "y", 0, 0],
+        ["Is there any possibility of a metal fragment in your eye from an injury?", "y", 0, 0],
+        ["Do you have any shrapnel, BB's, or gunshot wounds?", "y", 0, 0],
+        ["Do you have any ear implants?", "y", "card", 0],
+        ["Do you wear hearing aids?", "y", "hearing aids", 0],
+        ["Do you have an implanted drug pump?", "y", "card", 0],
+        ["Do you have an insulin pump?", "y", "insulin pump", 0],
         ["If you have any other metallic implants that were not asked about, please type them in now. "
-        "If not, type 'n'. ", "raw", 0, 0, "input"],  # special case - raw input
-        ["Have you ever had MRI contrast before?", "NA", 0, 0, 0],  # special case - no flag
-        ["Has your body ever had a negative reaction to MRI contrast?", "y", 0, "opt", 0],
-        ["Are you diabetic?", "y", 0, 0, 0],
-        ["Do you have a history of high blood pressure?", "y", 0, 0, 0],
-        ["Do you have a history of kidney failure?", "y", 0, 0, 0],
-        ["Are you on dialysis?", "y", 0, 0, 0],
-        ["Do you have any liver disease?", "y", 0, 0, 0],
-        ["Do you have multiple myeloma?", "y", 0, 0, 0]]
+        "If not, type 'n'. ", "raw", 0, "input"],  #
+        ["Have you ever had MRI contrast before?", "NA", 0, 0],  #
+        ["Has your body ever had a negative reaction to MRI contrast?", "y", 0, 0],
+        ["Are you diabetic?", "y", 0, 0],
+        ["Do you have a history of high blood pressure?", "y", 0, 0],
+        ["Do you have a history of kidney failure?", "y", 0, 0],
+        ["Are you on dialysis?", "y", 0, 0],
+        ["Do you have any liver disease?", "y", 0, 0],
+        ["Do you have multiple myeloma?", "y", 0, 0]]
 
 
 graveyard = []  # where unused questions go to die and become undead again
@@ -335,14 +378,13 @@ def questionnaire():
     print("At any time you can enter 'back' to go back to the previous question.\n")
     while q_count < len(form):  # when Q count hits Q length we stop
         while True:
-            if form[q_count][4] == "input":  # no [y/n] for raw input
+            if form[q_count][3] == "input":  # no [y/n] for raw input
                 answer = input(form[q_count][0])
-            else:
-                answer = input(f"{form[q_count][0]} [y/n] ")  # form indexed by question count (starting 0)
-            if form[q_count][4] == "input":  # allow raw input answer
                 final.append((form[q_count], answer))  # log the question, options, and answer
                 q_count += 1  # count question after answer logged
                 break
+            else:
+                answer = input(f"{form[q_count][0]} [y/n] ")  # form indexed by question count (starting 0)
             if answer == "back":
                 if q_count == 0:  # if input back command at first question
                     answer = input("Exit without completing? [y/n] ")
@@ -353,21 +395,12 @@ def questionnaire():
                         break
                 q_count -= 1  # question count - 1 to go back
                 del[final[-1]]  # deletes last question answered
-                # skips optional questions for a true "back" function instead of hitting question previously skipped
-                skips = 0  # number of questions to skip going backwards
-                copy_count = q_count  # copy so the variable doesn't change and have to fix it later
-                while form[copy_count][3] == "opt":
-                    copy_count -= 1  # if True back up and check again
-                    skips += 1  # if True skip optional question
-                # if main question is "n" we execute the optional questions skip
-                try:  # throws error at index 0
-                    if final[-1][1] == "n":
-                        q_count -= skips  # execute optional questions skip
-                except IndexError:
-                    pass  # no need to skip at index 0
             elif answer == "y":
                 if form[q_count][2] == "card":  # catches card option and stores card info
                     final.append((form[q_count], answer, f"Card Info: {check_card()}"))
+                elif form[q_count][2] != 0:
+                    removal_message(form[q_count][2])
+                    final.append((form[q_count], answer))
                 else:
                     final.append((form[q_count], answer))  # log the question, options, and answer
                 q_count += 1  # count question after answer logged
@@ -463,138 +496,6 @@ def write_form(d):
     return
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# BACK UP
-# # index format = 0 question - printed text for user
-# #                1 title - used to add to dict
-# #                2 card - if "y" asks for card info
-# #                3 optional - follow-up questions; helps back command be accurate
-# #                4 input - accepts raw input instead of the default 'y', 'n', or 'back'.
-#
-#
-# form = [("Is there ANY chance you could be pregnant?", "pregnant", 0, 0, 0),
-#         ("Do you currently have a pacemaker/defibrillator?", "pacemaker", "card", 0, 0),
-#         ("Have you ever had a pacemaker/defibrillator removed in the past?", "past pacemaker", 0, 0, 0),
-#         ("Do you have abandoned pacemaker wires still in place?", "wires", "card", "opt", 0),
-#         ("Do you have a brain aneurysm clip?", "aneurysm clip", "card", 0, 0),  #
-#         ("Do you have a nerve or bone growth stimulator?", "stimulator", "card", 0, 0),
-#         ("Do you have any stents?", "stent", "card", 0, 0),
-#         ("Do you have any intravascular coils?", "coil", "card", 0, 0),
-#         ("Do you have any vascular filters?", "filter", "card", 0, 0),
-#         ("Do you have an artificial heart valve?", "heart valve", "card", 0, 0),  #
-#         ("Do you have a shunt?", "shunt", "card", 0, 0),
-#         ("Do you have any eye implants?", "eye", "card", 0, 0),
-#         ("Have you ever worked as a welder or metal shaver?", "eyes occupation", 0, 0, 0),
-#         ("Do you now or have you ever had an injury involving metal to your eye?", "metal in eyes", 0, 0, 0),
-#         ("Is there any possibility a metal fragment is still in your eye?", "orbit xray", 0, "opt", 0),
-#         ("Do you have any shrapnel, BB's, or gunshot wounds?", "foreign body", 0, 0, 0),
-#         ("Do you have any ear implants?", "ear", "card", 0, 0),
-#         ("Do you wear hearing aids?", "hearing aids", 0, 0, 0),
-#         ("Do you have an implanted drug pump?", "drug pump", "card", 0, 0),
-#         ("Do you have an insulin pump?", "insulin pump", "card", 0, 0),
-#         ("If you have any other metallic implants that were not asked about, please type them in now. "
-#         "If not, type 'n'. ", "metallic implants", 0, 0, "input"),
-#         ("Have you ever had MRI contrast before?", "contrast", 0, 0, 0),
-#         ("Did your body have a negative reaction to the MRI contrast?", "reaction", 0, "opt", 0),
-#         ("Are you diabetic?", "diabetic", 0, 0, 0),
-#         ("Do you have a history of high blood pressure?", "blood pressure", 0, 0, 0),
-#         ("Do you have a history of kidney failure?", "kidneys", 0, 0, 0),
-#         ("Are you on dialysis?", "dialysis", 0, 0, 0),
-#         ("Do you have any liver disease?", "liver disease", 0, 0, 0),
-#         ("Do you have multiple myeloma?", "multiple myeloma", 0, 0, 0)]
-#
-#
-# graveyard = []  # where unused questions go to die and become undead again
-# # final = {}  # answers stored here
-#
-#
-# def questionnaire():
-#     q_count = 0
-#     # Begin Questionnaire
-#     print("Read each question carefully and answer with either 'y' or 'n' unless otherwise stated.")
-#     print("At any time you can enter 'back' to go back to the previous question.")
-#     while q_count < len(form):  # when Q count hits Q length we stop
-#         while True:
-#             if form[q_count][4] == "input":
-#                 answer = input(form[q_count][0])
-#             else:
-#                 answer = input(f"{form[q_count][0]} [y/n] ")  # questions indexed by question count (starting 0)
-#             if form[q_count][4] == "input":  # allow raw input answer
-#                 final[form[q_count][1]] = answer  # answer logged
-#                 q_count += 1  # count question after answer logged
-#                 break
-#             if answer == "back":
-#                 while True:
-#                     if q_count == 0:  # back command at first question
-#                         answer = input("Exit without completing? [y/n] ")
-#                         if answer == "y":
-#                             quit()
-#                         if answer == "n":  # ask first questions again
-#                             break
-#                     q_count -= 1  # question count - 1 to go back
-#                     if form[q_count][1] in final:  # remove answer from dict
-#                         final.pop(form[q_count][1])
-#                     if form[q_count][1] + " card" in final:     #!!!!!!!!!!!
-#                         final.pop(form[q_count][1] + " card")   #!!!!!!!!!!!
-#                     # skips optional questions for a true "back" function instead of hitting question previously skipped
-#                     skips = 0  # number of questions to skip going backwards
-#                     copy_count = q_count  # copy so the variable doesn't change and have to fix it later
-#                     while form[copy_count][3] == "opt":
-#                         copy_count -= 1  # if True back up and check again
-#                         skips += 1  # if True skip optional question
-#                     # if main question is "n" we execute the optional questions skip
-#                     if final[form[q_count - skips][1]] == "n":  #!BROKEN! on skips 0
-#                         q_count -= skips  # execute optional questions skip
-#                     answer = input(form[q_count][0])
-#                     if answer != "back":  # if answer is valid push forward
-#                         final[form[q_count][1]] = answer  # log the answer in a dictionary by tuple[1]
-#                         q_count += 1  # count question after answer logged
-#                         break
-#             elif answer == "y":
-#                 final[form[q_count][1]] = answer  # log the answer in a dictionary by tuple[1] (tag)
-#                 if form[q_count][2] == "card":                             #!!!!!!!!!!!!
-#                     final[form[q_count][1] + " card"] = check_card()       #!!!!!!!!!!!!
-#                 q_count += 1  # count question after answer logged
-#                 break
-#             elif answer == "n":
-#                 final[form[q_count][1]] = answer  # log the answer in a dictionary by tuple[1] (tag)
-#                 q_count += 1  # count question after answer logged
-#                 while form[q_count][3] == "opt":  # skips over optional follow-up questions
-#                     q_count += 1
-#                 break
-#             else:
-#                 print("Invalid entry. Please enter 'y', 'n', or 'back'.")
-#                 continue
-#         if form[q_count] == form[-1]:
-#             break  # end questionnaire
-#     print("DONE!")
-#     print(final)  # END HERE 1
 
 
 
