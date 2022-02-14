@@ -39,7 +39,8 @@ custom questions. It will also include settings that can be tweaked, all made to
 
 If this program were to be brought to a reality, a few minor, yet intricate improvements are intended:
 
-- Flag height and weight based on MRI scanner restrictions. 
-- Calculate age of patient on appointment date instead of current date. 
-- Detect what type of scan is being performed and flag accordingly (i.e. contrast studies, height, weight). 
-- Research and fine-tune questions asked on the form.
+- Flag height and weight based on MRI scanner restrictions 
+- Calculate age of patient on appointment date instead of current date
+- Detect what type of scan is being performed and flag accordingly (i.e. contrast studies, height, weight)
+- Research and fine-tune questions asked on the form
+- Changes made to form and settings should have permanence

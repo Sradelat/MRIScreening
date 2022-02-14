@@ -4,7 +4,6 @@ import re
 
 # TODO:
 #  Settings
-#  Catch errors in menus
 
 
 def home(scan_pacemakers=True):
@@ -27,7 +26,6 @@ def home(scan_pacemakers=True):
             return
         if command == "2":
             edit_questions()
-            home()
             return
         if command == "3":  # not currently implemented
             while True:
@@ -45,107 +43,158 @@ def home(scan_pacemakers=True):
                         home(scan_pacemakers)
                         return
         else:
-            print("Invalid command. Enter a the number of your answer.")
+            print(num_error())
+
+
+def num_error():
+    return "Invalid command. Enter a valid number in range."
 
 
 def edit_questions():
     for question in form:
         print(question[0])
     print("\nAbove is a list of questions actively in the screening form. Would you like to:"
-          "\n1. Add template question(s)\n2. Remove question(s)\n3. Sort questions\n4. Add custom question(s)")
-    answer = input()
-    if answer == "1":  # Add template questions
-        while True:
-            for question in enumerate(graveyard):
-                print(question[0], question[1][0])
-            add_q = input("\nEnter the number of the question you would like to add: ")
-            move_q = graveyard.pop(int(add_q))  # pop indexed question from graveyard
-            for question in enumerate(form):
-                print(question[0], question[1][0])
-            sort_add = input("\nEnter the number of where you would like it to go: ")  # desired index position
-            form.insert(int(sort_add), move_q)  # insert desired question into desired index
-            for question in enumerate(form):  # enumerate for consistency
-                print(question[0], question[1][0])
-            done = input("\nUpdated list above. Are you done? [y/n] ")  # loops if not done
-            if done == "y":
-                break
-            if done == "n":
-                continue
-    if answer == "2":  # remove questions
-        while True:
-            for question in enumerate(form):  # enumerate gives us index no matter where a question goes
-                print(question[0], question[1][0])
-            remove_q = input("\nEnter the number of the question you would like to remove: ")  # desired index
-            move_q = form.pop(int(remove_q))
-            graveyard.append(move_q)  # moved to graveyard for retrieval
-            for question in enumerate(form):  # enumerate for consistency
-                print(question[0], question[1][0])
-            done = input("\nUpdated list above. Are you done? [y/n] ")  # loops if not done
-            if done == "y":
-                break
-            if done == "n":
-                continue
-    if answer == "3":  # sort questions
-        while True:
-            for question in enumerate(form):  # enumerate gives us index no matter where a question goes
-                print(question[0], question[1][0])
-            sort_remove = input("\nEnter the number of the question you would like to move: ")  # remove desired index
-            move_q = form.pop(int(sort_remove))
+          "\n1. Add template question(s)\n2. Remove question(s)\n3. Sort questions\n4. Add custom question(s)\n"
+          "5. Go back to home screen")
+    while True:
+        answer = input()
+        if answer == "1":  # Add template questions
+            if len(graveyard) == 0:
+                input("There are no questions left in storage to add. Press enter to return to menu.")
+                edit_questions()
+                return
+            else:
+                while True:
+                    for question in enumerate(graveyard):  # visual aid for user
+                        print(question[0], question[1][0])
+                    while True:
+                        add_q = input("\nEnter the number of the question you would like to add: ")
+                        try:
+                            move_q = graveyard.pop(int(add_q))  # pop indexed question from graveyard
+                            break
+                        except (ValueError, IndexError):  # catch invalids
+                            print(num_error())
+                    for question in enumerate(form):  # visual aid for user
+                        print(question[0], question[1][0])
+                    print(len(form))  # visual aid to add to end of form
+                    while True:
+                        sort_add = input("\nEnter the number of where you would like it to go: ")  # desired index
+                        try:
+                            form.insert(int(sort_add), move_q)  # pop indexed question from graveyard
+                            break
+                        except (ValueError, IndexError):
+                            print(num_error())
+                    for question in enumerate(form):  # enumerate for consistency
+                        print(question[0], question[1][0])
+                    print("\nUpdated list above. Are you done? [y/n] ")
+                    while True:
+                        done = valid_answer()  # loops if not done
+                        if done == "y":
+                            edit_questions()
+                            return
+                        elif done == "n":
+                            break
+        elif answer == "2":  # remove questions
+            while True:
+                for question in enumerate(form):  # enumerate gives us index no matter where a question goes
+                    print(question[0], question[1][0])  # visual aid for user
+                while True:
+                    remove_q = input("Enter the number of the question you would like to remove: ")  # desired index
+                    try:
+                        move_q = form.pop(int(remove_q))
+                        graveyard.append(move_q)  # moved to graveyard for retrieval
+                        break
+                    except (ValueError, IndexError):
+                        print(num_error())
+                for question in enumerate(form):  # enumerate for consistency
+                    print(question[0], question[1][0])
+                print("\nUpdated list above. Are you done? [y/n] ")
+                while True:
+                    done = valid_answer()  # loops if not done
+                    if done == "y":
+                        edit_questions()
+                        return
+                    elif done == "n":
+                        break
+        elif answer == "3":  # sort questions
+            while True:
+                for question in enumerate(form):  # enumerate gives us index no matter where a question goes
+                    print(question[0], question[1][0])
+                while True:
+                    sort_remove = input("Enter the number of the question you would like to move: ")  # remove desired index
+                    try:
+                        move_q = form.pop(int(sort_remove))
+                        break
+                    except (ValueError, IndexError):
+                        print(num_error())
+                for question in enumerate(form):  # print form
+                    print(question[0], question[1][0])
+                print(len(form))  # provides visual aid for adding on to the end of the form
+                while True:
+                    sort_add = input("\nEnter the number of where you would like it to go: ")  # move to desired index
+                    try:
+                        form.insert(int(sort_add), move_q)  # insert using desired index and popped question
+                        break
+                    except (ValueError, IndexError):
+                        print(num_error())
+                for question in enumerate(form):  # enumerate for consistency
+                    print(question[0], question[1][0])
+                print("\nUpdated list above. Are you done? [y/n] ")
+                done = valid_answer()  # loops if not done
+                if done == "y":
+                    edit_questions()
+                    return
+                if done == "n":
+                    continue
+        elif answer == "4":
+            custom_question = input("Please enter the question you would like to be asked:\n")
+            while True:
+                input_type = input("Is it a..\n1. Yes or no question\n2. Raw input question\n")
+                if input_type == "1":
+                    inp = 0
+                    while True:
+                        answer = input("Which answer will flag the question?\n1. Yes\n2. No\n3. No flag needed\n")
+                        if answer == "1":
+                            flag = "y"
+                            break
+                        elif answer == "2":
+                            flag = "n"
+                            break
+                        elif answer == "3":
+                            flag = "NA"
+                            break
+                        else:
+                            print(num_error())
+                    break
+                elif input_type == "2":
+                    flag = "raw"
+                    inp = "input"
+                    break
+                else:
+                    print(num_error())
+            while True:
+                answer = input("Does the question need.. \n1. An implant card follow-up question?\n2. A reminder to "
+                               "remove a metallic object (i.e. hearing aids)\n3. Neither")
+                if answer == "1":
+                    react = "card"
+                    break
+                elif answer == "2":
+                    react = input("Please enter the object that will need to be removed: ").lower()
+                    break
+                elif answer == "3":
+                    react = 0
+                    break
+                else:
+                    print(num_error())
             for question in enumerate(form):  # print form
                 print(question[0], question[1][0])
-            sort_add = input("\nEnter the number of where you would like it to go: ")  # move to desired index
-            form.insert(int(sort_add), move_q)  # insert using desired index and popped question
-            for question in enumerate(form):  # enumerate for consistency
-                print(question[0], question[1][0])
-            done = input("\nUpdated list above. Are you done? [y/n] ")  # loops if not done
-            if done == "y":
-                break
-            if done == "n":
-                continue
-    if answer == "4":
-        custom_question = input("Please enter the question you would like to be asked:\n")
-        while True:
-            input_type = input("Is it a..\n1. Yes or no question\n2. Raw input question\n")
-            if input_type == "1":
-                inp = 0
-                while True:
-                    answer = input("Which answer will flag the question?\n1. Yes\n2. No\n3. No flag needed\n")
-                    if answer == "1":
-                        flag = "y"
-                        break
-                    elif answer == "2":
-                        flag = "n"
-                        break
-                    elif answer == "3":
-                        flag = "NA"
-                        break
-                    else:
-                        print("Invalid command. Enter a the number of your answer.")
-                break
-            elif input_type == "2":
-                flag = "raw"
-                inp = "input"
-                break
-            else:
-                print("Invalid command. Enter a the number of your answer.")
-        while True:
-            answer = input("Does the question need.. \n1. An implant card follow-up question?\n2. A reminder to remove"
-                           "a metallic object (i.e. hearing aids)\n3. Neither")
-            if answer == "1":
-                react = "card"
-                break
-            elif answer == "2":
-                react = input("Please enter the object that will need to be removed: ").lower()
-                break
-            elif answer == "3":
-                react = 0
-                break
-            else:
-                print("Invalid command. Enter a the number of your answer.")
-        for question in enumerate(form):  # print form
-            print(question[0], question[1][0])
-        custom_add = input("\nEnter the number of where you would like it to go: ")  # move to desired index
-        form.insert(int(custom_add), [custom_question, flag, react, inp])
+            custom_add = input("\nEnter the number of where you would like it to go: ")  # move to desired index
+            form.insert(int(custom_add), [custom_question, flag, react, inp])
+        elif answer == "5":
+            home()
+            return
+        else:
+            print(num_error())
 
 
 def valid_answer():  # checking to see if answer to question was y or n - otherwise throw error
