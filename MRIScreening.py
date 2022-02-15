@@ -2,11 +2,13 @@ import MyTools
 import collections
 import re
 
-# TODO:
-#  Settings
+
+# TODO
+#  Need adult? minor
 
 
-def home(scan_pacemakers=True):
+def home(scan_pacemakers=True, weight_limit=0):
+    print("WELCOME TO MRI SCREENING!")
     print("1. Start Questionnaire\n2. Edit Questions\n3. Settings\nEnter the number of which command you want.")
     while True:
         command = input()
@@ -19,29 +21,47 @@ def home(scan_pacemakers=True):
             height = input_height(metric)
             weight = input_weight(metric)
             d = check_demographics(name, sex, dob, metric, height, weight)  # learned named tuples
+            if weight_limit > 0 and int(d.weight) > int(weight_limit):
+                input("The weight you entered exceeds the weight limit of our MRI scanner. Please notify staff. Press "
+                      "enter to exit.")
+                quit()
             # demographics(fname='John', lname='Doe', sex='Male', dob='07/27/1957', height="5'9", weight='135')
-            questionnaire()
+            questionnaire(scan_pacemakers)
             get_flagged_answers()  # populate flagged answers list
             write_form(d)
             return
         if command == "2":
             edit_questions()
             return
-        if command == "3":  # not currently implemented
+        if command == "3":
             while True:
-                print(f"Which setting would you like to change?\n1. Scan pacemakers = {scan_pacemakers}")  # need labs?
+                print(f"Which setting would you like to change?\n"
+                      f"1. Scan pacemakers = {scan_pacemakers}\n"
+                      f"2. Weight limit = {weight_limit}\n"
+                      f"3. Return to home screen")
                 while True:
                     command = input()
                     if command == "1":
-                        if scan_pacemakers:
+                        if scan_pacemakers:  # if True, facility can scan pacemakers
                             scan_pacemakers = False
                             break
                         else:
                             scan_pacemakers = True
                             break
-                    if command == "home":
-                        home(scan_pacemakers)
+                    elif command == "2":  # Might be useful to catch weight limits before a patient hits the schedule
+                        while True:
+                            weight_limit = input("Please enter your scanner's weight limit in pounds. If you enter 0, "
+                                                 "the patient will not receive a prompt about weight limits.\n")
+                            try:
+                                home(scan_pacemakers, int(weight_limit))
+                                break
+                            except ValueError:
+                                print("Please enter a number without a decimal.")
+                    elif command == "3":
+                        home(scan_pacemakers, weight_limit)
                         return
+                    else:
+                        print(num_error())
         else:
             print(num_error())
 
@@ -121,7 +141,7 @@ def edit_questions():
                 for question in enumerate(form):  # enumerate gives us index no matter where a question goes
                     print(question[0], question[1][0])
                 while True:
-                    sort_remove = input("Enter the number of the question you would like to move: ")  # remove desired index
+                    sort_remove = input("Enter the number of the question you would like to move: ")  # remove index
                     try:
                         move_q = form.pop(int(sort_remove))
                         break
@@ -383,10 +403,11 @@ def removal_message(removable):
 #                1 tag - if input = tag it is flagged for tech
 #                2 card or removable - if "y" asks for card info / prints removal message
 #                3 input - accepts raw input instead of the default 'y', 'n', or 'back'.
+#                4 special option - i.e. scan pacemakers
 
 
 form = [["Is there ANY chance you could be pregnant?", "y", 0, 0],
-        ["Do you currently have a pacemaker/defibrillator?", "y", "card", 0],
+        ["Do you currently have a pacemaker/defibrillator?", "y", "card", 0, "pacemaker"],
         ["Do you have abandoned pacemaker wires still in place?", "y", "card", 0],
         ["Do you have a brain aneurysm clip?", "y", "card", 0],
         ["Do you have a nerve or bone growth stimulator?", "y", "card", 0],
@@ -420,7 +441,7 @@ graveyard = []  # where unused questions go to die and become undead again
 final = []  # answers stored here
 
 
-def questionnaire():
+def questionnaire(scan_pacemakers):
     q_count = 0
     # Begin Questionnaire
     print("Read each question carefully and answer with either 'y' or 'n' unless otherwise stated.")  # instructions
@@ -445,6 +466,14 @@ def questionnaire():
                 q_count -= 1  # question count - 1 to go back
                 del[final[-1]]  # deletes last question answered
             elif answer == "y":
+                if not scan_pacemakers:  # can be changed in settings
+                    try:
+                        if form[q_count][4] == "pacemaker":
+                            input("STOP! Our facility does not have the capability to perform MRI scans on patients "
+                                  "with pacemakers.\nPlease notify staff. Press enter to exit.")
+                            quit()
+                    except IndexError:
+                        pass
                 if form[q_count][2] == "card":  # catches card option and stores card info
                     final.append((form[q_count], answer, f"Card Info: {check_card()}"))
                 elif form[q_count][2] != 0:
