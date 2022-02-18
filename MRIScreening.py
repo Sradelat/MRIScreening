@@ -3,10 +3,6 @@ import collections
 import re
 
 
-# TODO
-#  Need adult? minor
-
-
 def home(scan_pacemakers=True, weight_limit=0):
     print("WELCOME TO MRI SCREENING!")
     print("1. Start Questionnaire\n2. Edit Questions\n3. Settings\nEnter the number of which command you want.")
@@ -87,8 +83,9 @@ def edit_questions():
                 while True:
                     for question in enumerate(graveyard):  # visual aid for user
                         print(question[0], question[1][0])
+                    print("\nEnter the number of the question you would like to add: ")
                     while True:
-                        add_q = input("\nEnter the number of the question you would like to add: ")
+                        add_q = input()
                         try:
                             move_q = graveyard.pop(int(add_q))  # pop indexed question from graveyard
                             break
@@ -97,8 +94,9 @@ def edit_questions():
                     for question in enumerate(form):  # visual aid for user
                         print(question[0], question[1][0])
                     print(len(form))  # visual aid to add to end of form
+                    print("\nEnter the number of where you would like it to go: ")
                     while True:
-                        sort_add = input("\nEnter the number of where you would like it to go: ")  # desired index
+                        sort_add = input()  # desired index
                         try:
                             form.insert(int(sort_add), move_q)  # pop indexed question from graveyard
                             break
@@ -118,8 +116,9 @@ def edit_questions():
             while True:
                 for question in enumerate(form):  # enumerate gives us index no matter where a question goes
                     print(question[0], question[1][0])  # visual aid for user
+                print("\nEnter the number of the question you would like to remove: ")
                 while True:
-                    remove_q = input("Enter the number of the question you would like to remove: ")  # desired index
+                    remove_q = input()  # desired index
                     try:
                         move_q = form.pop(int(remove_q))
                         graveyard.append(move_q)  # moved to graveyard for retrieval
@@ -140,8 +139,9 @@ def edit_questions():
             while True:
                 for question in enumerate(form):  # enumerate gives us index no matter where a question goes
                     print(question[0], question[1][0])
+                    print("\nEnter the number of the question you would like to move: ")
                 while True:
-                    sort_remove = input("Enter the number of the question you would like to move: ")  # remove index
+                    sort_remove = input()  # remove index
                     try:
                         move_q = form.pop(int(sort_remove))
                         break
@@ -150,8 +150,9 @@ def edit_questions():
                 for question in enumerate(form):  # print form
                     print(question[0], question[1][0])
                 print(len(form))  # provides visual aid for adding on to the end of the form
+                print("\nEnter the number of where you would like it to go: ")
                 while True:
-                    sort_add = input("\nEnter the number of where you would like it to go: ")  # move to desired index
+                    sort_add = input()  # move to desired index
                     try:
                         form.insert(int(sort_add), move_q)  # insert using desired index and popped question
                         break
@@ -371,6 +372,9 @@ def check_demographics(name, sex, dob, metric, height, weight):  # getting the d
             else:
                 d = demographics(fname=name.split()[0], lname=name.split()[1], sex=sex,
                                  dob=dob, height=height, weight=weight)
+            if MyTools.current_age_calculator(dob) < 18:  # check if pt over 18 otherwise parent fills out form
+                input("Patient is a minor. Please have a parent/legal guardian answer the following questions.\nPress "
+                      "enter to continue.")
             return d
         if correct == "n":  # May separate into another fx? edit_demographics
             print("Input the number of the field that is incorrect.\n1. Name\n2. Sex\n3. DOB\n4. Height\n5. Weight")
@@ -572,22 +576,3 @@ def write_form(d):
         with open("Schedule.txt", "a") as file:  # append
             file.writelines(insert_form)
     return
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

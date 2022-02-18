@@ -1,5 +1,4 @@
 from datetime import date
-# Saving these functions for general use as needed.
 
 
 def current_age_calculator(dob):  # uses datetime for real time age calculation
