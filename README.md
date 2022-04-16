@@ -18,7 +18,7 @@ to the technologist in a streamlined fashion. This will hopefully decrease techn
 bringing them to the attention of the technologist. The program has the ability to customize the list of questions such as adding, removing, sorting, and even creating 
 custom questions. It will also include settings that can be tweaked, all made to suit a company's specific needs.
 
-### What is the problem with paper?
+### What is the problem with paper forms?
 
 - Limited amount of space for questions
 - Confusion with scribbled out mistakes

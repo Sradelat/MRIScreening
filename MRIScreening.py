@@ -10,21 +10,22 @@ def home(scan_pacemakers=True, weight_limit=0):
         command = input()
         if command == "1":
             print("Starting Questionnaire..")
-            name = input_name()
+            name = input_name()  # begin with demographic compilation
             sex = input_sex()
             dob = input_dob()
             metric = metric_system()
             height = input_height(metric)
             weight = input_weight(metric)
-            d = check_demographics(name, sex, dob, metric, height, weight)  # learned named tuples
-            if weight_limit > 0 and int(d.weight) > int(weight_limit):
+            d = check_demographics(name, sex, dob, metric, height, weight)  # using named tuples
+            if weight_limit > 0 and int(d.weight) > int(weight_limit):  # check weight limit before continuing
                 input("The weight you entered exceeds the weight limit of our MRI scanner. Please notify staff. Press "
                       "enter to exit.")
                 quit()
+            # LINE BELOW FOR TESTING - TO SKIP DEMOGRAPHIC INPUTS
             # demographics(fname='John', lname='Doe', sex='Male', dob='07/27/1957', height="5'9", weight='135')
-            questionnaire(scan_pacemakers)
+            questionnaire(scan_pacemakers)  # begin screening form
             get_flagged_answers()  # populate flagged answers list
-            write_form(d)
+            write_form(d)  # write to file
             return
         if command == "2":
             edit_questions()
@@ -32,8 +33,8 @@ def home(scan_pacemakers=True, weight_limit=0):
         if command == "3":
             while True:
                 print(f"Which setting would you like to change?\n"
-                      f"1. Scan pacemakers = {scan_pacemakers}\n"
-                      f"2. Weight limit = {weight_limit}\n"
+                      f"1. Scan pacemakers = {scan_pacemakers}\n"  # facility may not scan pacemakers
+                      f"2. Weight limit = {weight_limit}\n"  # used to enter scanner weight limit
                       f"3. Return to home screen")
                 while True:
                     command = input()
@@ -62,12 +63,12 @@ def home(scan_pacemakers=True, weight_limit=0):
             print(num_error())
 
 
-def num_error():
+def num_error():  # if a value was entered outside range of valid commands
     return "Invalid command. Enter a valid number in range."
 
 
 def edit_questions():
-    for question in form:
+    for question in form:  # show active questions
         print(question[0])
     print("\nAbove is a list of questions actively in the screening form. Would you like to:"
           "\n1. Add template question(s)\n2. Remove question(s)\n3. Sort questions\n4. Add custom question(s)\n"
@@ -252,7 +253,7 @@ def input_dob():
             dob_month = dob.split("/")[0]  # splitting and defining each element for format check
             dob_day = dob.split("/")[1]
             dob_year = dob.split("/")[2]
-            if any([int(dob_month) > 12, len(dob_month) != 2,  # date format check
+            if any([int(dob_month) > 12, len(dob_month) != 2,  # date format/value check
                     int(dob_day) > 31, len(dob_day) != 2,
                     int(dob_year) < 1900, len(dob_year) != 4]):
                 print("ERROR. Incorrect format. Try again.")
@@ -266,9 +267,9 @@ def input_dob():
 def input_sex():
     while True:
         sex = input("Were you male or female at birth? ").lower()
-        if sex == "male" or sex == "female":
+        if sex == "male" or sex == "female":  # correct answers
             break
-        else:
+        else:  # incorrect answers
             print("INVALID ANSWER. Please enter male or female.")
     return sex.title()
 
@@ -284,7 +285,7 @@ def input_height(metric):
     if metric == "y":
         while True:
             height = input("Enter your height in centimeters: ")
-            if height.isdigit():
+            if height.isdigit():  # catch non digits
                 break
             else:
                 print("Please enter numbers only.")
@@ -293,7 +294,7 @@ def input_height(metric):
     elif metric == "n":
         while True:
             height = input("Enter your height (Example for 5ft 0in: 5'0): ")
-            if "'" not in height:
+            if "'" not in height:  # check correct format
                 print("Please format correctly. Try again.")
                 continue
             else:
@@ -306,7 +307,7 @@ def input_weight(metric):
     if metric == "y":
         while True:
             weight = input("Enter your weight in kilograms: ")
-            if weight.isdigit():
+            if weight.isdigit():  # catch non digits
                 break
             else:
                 print("Please enter numbers with no decimals only.")
@@ -315,7 +316,7 @@ def input_weight(metric):
     if metric == "n":
         while True:
             weight = input("Enter your weight in pounds: ")
-            if weight.isdigit():
+            if weight.isdigit():  # catch non digits
                 break
             else:
                 print("Please enter numbers with no decimals only.")
@@ -366,10 +367,10 @@ def check_demographics(name, sex, dob, metric, height, weight):  # getting the d
         correct = valid_answer()
         if correct == "y":
             demographics = collections.namedtuple("demographics", ["fname", "lname", "sex", "dob", "height", "weight"])
-            if metric == "y":  # convert before permanent storage
+            if metric == "y":  # convert metric before final storage
                 d = demographics(fname=name.split()[0], lname=name.split()[1], sex=sex, dob=dob,
                                  height=MyTools.metric_uscs_height(height), weight=MyTools.metric_uscs_weight(weight))
-            else:
+            else:  # demographic final storage
                 d = demographics(fname=name.split()[0], lname=name.split()[1], sex=sex,
                                  dob=dob, height=height, weight=weight)
             if MyTools.current_age_calculator(dob) < 18:  # check if pt over 18 otherwise parent fills out form
