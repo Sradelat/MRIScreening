@@ -28,8 +28,7 @@ def home(scan_pacemakers=True, weight_limit=0):
             write_form(d)  # write to file
             return
         if command == "2":
-            edit_questions()
-            return
+            return edit_questions()
         if command == "3":
             while True:
                 print(f"Which setting would you like to change?\n"
@@ -50,13 +49,11 @@ def home(scan_pacemakers=True, weight_limit=0):
                             weight_limit = input("Please enter your scanner's weight limit in pounds. If you enter 0, "
                                                  "the patient will not receive a prompt about weight limits.\n")
                             try:
-                                home(scan_pacemakers, int(weight_limit))
-                                break
+                                return home(scan_pacemakers, int(weight_limit))
                             except ValueError:
                                 print("Please enter a number without a decimal.")
                     elif command == "3":
-                        home(scan_pacemakers, weight_limit)
-                        return
+                        return home(scan_pacemakers, weight_limit)
                     else:
                         print(num_error())
         else:
@@ -78,8 +75,7 @@ def edit_questions():
         if answer == "1":  # Add template questions
             if len(graveyard) == 0:
                 input("There are no questions left in storage to add. Press enter to return to menu.")
-                edit_questions()
-                return
+                return edit_questions()
             else:
                 while True:
                     for question in enumerate(graveyard):  # visual aid for user
@@ -109,8 +105,7 @@ def edit_questions():
                     while True:
                         done = valid_answer()  # loops if not done
                         if done == "y":
-                            edit_questions()
-                            return
+                            return edit_questions()
                         elif done == "n":
                             break
         elif answer == "2":  # remove questions
@@ -132,8 +127,7 @@ def edit_questions():
                 while True:
                     done = valid_answer()  # loops if not done
                     if done == "y":
-                        edit_questions()
-                        return
+                        return edit_questions()
                     elif done == "n":
                         break
         elif answer == "3":  # sort questions
@@ -164,8 +158,7 @@ def edit_questions():
                 print("\nUpdated list above. Are you done? [y/n] ")
                 done = valid_answer()  # loops if not done
                 if done == "y":
-                    edit_questions()
-                    return
+                    return edit_questions()
                 if done == "n":
                     continue
         elif answer == "4":
@@ -213,8 +206,7 @@ def edit_questions():
             custom_add = input("\nEnter the number of where you would like it to go: ")  # move to desired index
             form.insert(int(custom_add), [custom_question, flag, react, inp])
         elif answer == "5":
-            home()
-            return
+            return home()
         else:
             print(num_error())
 
@@ -464,8 +456,7 @@ def questionnaire(scan_pacemakers):
                 if q_count == 0:  # if input back command at first question
                     answer = input("Exit without completing? [y/n] ")
                     if answer == "y":
-                        home()
-                        return
+                        return home()
                     if answer == "n":  # ask first questions again
                         break
                 q_count -= 1  # question count - 1 to go back
