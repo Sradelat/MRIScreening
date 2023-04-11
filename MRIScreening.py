@@ -4,8 +4,11 @@ import re
 
 
 def home(scan_pacemakers=True, weight_limit=0):
-    print("WELCOME TO MRI SCREENING!")
-    print("1. Start Questionnaire\n2. Edit Questions\n3. Settings\nEnter the number of which command you want.")
+    print("WELCOME TO MY MRI SCREENING PROJECT!\n\n"
+    """    If you are reading this, I thank you for taking the time to try out my program! If you wish to speed through,
+    you can simply answer "n" to all of the screening questions. Be sure to read all of the instructions and have a 
+    good day!\n\n""")
+    print("1. Start Questionnaire\n2. Edit Questions\n3. Settings\n\nEnter the number of which command you want:")
     while True:
         command = input()
         if command == "1":
@@ -16,16 +19,19 @@ def home(scan_pacemakers=True, weight_limit=0):
             metric = metric_system()
             height = input_height(metric)
             weight = input_weight(metric)
-            d = check_demographics(name, sex, dob, metric, height, weight)  # using named tuples
+            d = check_demographics(name, sex, dob, metric, height, weight)  # using named tuples for readability
             if weight_limit > 0 and int(d.weight) > int(weight_limit):  # check weight limit before continuing
                 input("The weight you entered exceeds the weight limit of our MRI scanner. Please notify staff. Press "
                       "enter to exit.")
                 quit()
-            # LINE BELOW FOR TESTING - TO SKIP DEMOGRAPHIC INPUTS
-            # demographics(fname='John', lname='Doe', sex='Male', dob='07/27/1957', height="5'9", weight='135')
+            # COMMENTED LINES BELOW FOR TESTING ONLY - TO SKIP DEMOGRAPHIC INPUTS COMMENT ABOVE FUNCTIONS
+            # demographics = collections.namedtuple("demographics", ["fname", "lname", "sex", "dob", "height", "weight"])
+            # d = demographics(fname='John', lname='Doe', sex='Male', dob='07/27/1957', height="5'9", weight='135')
             questionnaire(scan_pacemakers)  # begin screening form
             get_flagged_answers()  # populate flagged answers list
             write_form(d)  # write to file
+            print("\n\nScreening form complete. Please check Schedule.txt for updates according to your answers!\n"
+                  "You can even try using a patient's information that is already on the schedule.")
             return
         if command == "2":
             return edit_questions()
@@ -222,7 +228,8 @@ def valid_answer():  # checking to see if answer to question was y or n - otherw
 
 
 def check_card():  # if the patient has an implant card they can input the info here
-    print("Please enter card information if available. If you do not have a card describe the implant: ")
+    print("Please enter implant card information if available. If you do not have an implant card, "
+          "please describe the implant to the best of your ability: ")
     card_info = input()  # this input will be sent to technologist for further research
     return card_info
 
@@ -354,7 +361,7 @@ def compile_demographics(name, sex, dob, metric, height, weight):  # could put a
 
 def check_demographics(name, sex, dob, metric, height, weight):  # getting the demographics right is very important
     while True:
-        demographics = compile_demographics(name, sex, dob, metric, height, weight)
+        demographics = compile_demographics(name, sex, dob, metric, height, weight)  # formats info nicely for user
         print(f"{demographics}\nPlease verify that the information above is correct. [y/n] ")  # if 'n' -  can edit
         correct = valid_answer()
         if correct == "y":
@@ -482,18 +489,18 @@ def questionnaire(scan_pacemakers):
             elif answer == "n":
                 final.append((form[q_count], answer))  # log the question, options, and answer
                 q_count += 1  # count question after answer logged
-                while form[q_count][3] == "opt":  # skips over optional follow-up questions
-                    q_count += 1  # count question after answer logged
+                # while form[q_count][3] == "opt":  # skips over optional follow-up questions TODO WHY THIS IS HERE
+                #     q_count += 1  # count question after answer logged TODO NOT SURE WHY THIS IS HERE
                 break
             else:
                 print("Invalid entry. Please enter 'y', 'n', or 'back'.")  # catches wrong entry
                 continue
-        if form[q_count] == form[-1]:
-            break  # end questionnaire
+        # if form[q_count] == form[-1]:   # TODO NOT SURE WHY THIS IS HERE
+        #     break  # end questionnaire # TODO NOT SURE WHY THIS IS HERE
     return final
 
 
-def final_form():  # prints screen form questions with answers
+def final_form():  # prints screen form questions with answers  TODO NOT SURE WHY THIS IS HERE
     print("\n\nENTIRE SCREENING FORM:")  # header
     for entry in final:
         try:
@@ -527,7 +534,7 @@ def write_form(d):
     match = 0
     for line in enumerate(content):
         if re.search(f"{d.lname}, {d.fname} DOB: {d.dob}", line[1]):  # else try to merge? create new entry? lol
-            match += 1
+            match += 1 # positive match enters screening form under patient's information on schedule
             i = line[0]  # catches index of matching line
             count = 1
             new_index = i + count  # uses current line index + how many lines to skip to get to desired index
